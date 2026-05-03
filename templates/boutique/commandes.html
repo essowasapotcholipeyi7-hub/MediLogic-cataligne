@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Commandes reçues{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+        <i class="fas fa-shopping-cart text-purple-500 mr-2"></i> Commandes reçues
+    </h1>
+
+    {% if commandes %}
+        <div class="space-y-4">
+            {% for commande in commandes %}
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+                    <div class="p-6">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Commande #{{ commande.id }}</p>
+                                <p class="font-semibold text-gray-800">{{ commande.client_nom }}</p>
+                                <p class="text-gray-600 text-sm">
+                                    <i class="fas fa-phone mr-1"></i> {{ commande.client_telephone }}
+                                </p>
+                            </div>
+                            <div class="mt-2 md:mt-0 text-right">
+                                <p class="text-2xl font-bold text-primary">{{ "%.0f"|format(commande.total) }} FCFA</p>
+                                <p class="text-xs text-gray-500">{{ commande.date_commande.strftime('%d/%m/%Y à %H:%M') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-3 mb-3">
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-map-marker-alt mr-1"></i> 
+                                <strong>Adresse :</strong> {{ commande.client_adresse }}
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="text-sm font-semibold text-gray-700 mb-2">Articles commandés :</p>
+                            <div class="space-y-1">
+                                {% for article in commande.articles_json %}
+                                    <div class="flex justify-between text-sm">
+                                        <span>{{ article.nom }} x{{ article.quantite }}</span>
+                                        <span class="font-medium">{{ "%.0f"|format(article.prix * article.quantite) }} FCFA</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-3 mt-4">
+                            <a href="{{ url_for('boutique.commande_details', commande_id=commande.id) }}" 
+                               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                                <i class="fas fa-eye mr-1"></i> Détails
+                            </a>
+                            <a href="https://wa.me/{{ commande.client_telephone|replace(' ', '')|replace('+', '') }}?text=Bonjour%20{{ commande.client_nom }},%20nous%20avons%20bien%20reçu%20votre%20commande%20n°{{ commande.id }}." 
+                               target="_blank"
+                               class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                                <i class="fab fa-whatsapp mr-1"></i> Contacter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-xl shadow-md p-12 text-center">
+            <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Aucune commande</h3>
+            <p class="text-gray-500">Les commandes des clients apparaîtront ici</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Validation de la commande{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+            <h1 class="text-2xl font-bold text-white">
+                <i class="fab fa-whatsapp mr-2"></i> Finaliser la commande
+            </h1>
+            <p class="text-green-100">Votre commande sera envoyée par WhatsApp</p>
+        </div>
+
+        <div class="p-6">
+            <!-- Récapitulatif rapide -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <p class="font-semibold text-gray-800 mb-2">Récapitulatif :</p>
+                <div class="space-y-1 text-sm">
+                    {% for id, item in panier.items() %}
+                        <div class="flex justify-between">
+                            <span>{{ item.nom }} x{{ item.quantite }}</span>
+                            <span>{{ "%.0f"|format(item.prix * item.quantite) }} FCFA</span>
+                        </div>
+                    {% endfor %}
+                    <div class="border-t border-gray-200 pt-2 mt-2 font-bold">
+                        <div class="flex justify-between">
+                            <span>Total</span>
+                            <span class="text-primary">{{ "%.0f"|format(total) }} FCFA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire client -->
+            <form method="POST" id="commandeForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Nom complet *</label>
+                        <input type="text" name="client_nom" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Numéro WhatsApp *</label>
+                        <input type="tel" name="client_telephone" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+                               placeholder="+228 XX XX XX XX">
+                        <p class="text-xs text-gray-500 mt-1">Format international recommandé</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Adresse de livraison *</label>
+                        <textarea name="client_adresse" rows="2" required 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+                                  placeholder="Votre adresse complète..."></textarea>
+                    </div>
+
+                    <!-- NOUVEAU : Instructions spéciales -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                            <i class="fas fa-pen-alt mr-1"></i> Instructions spéciales
+                        </label>
+                        <textarea name="instructions" rows="3" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition"
+                                  placeholder="Exemples: Taille M, Couleur rouge, Livraison après 18h, ..."></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Précisez la taille, couleur, ou toute information importante</p>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                        class="w-full mt-6 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition font-semibold">
+                    <span id="btnText"><i class="fab fa-whatsapp mr-2"></i> Envoyer la commande</span>
+                    <span id="btnSpinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Envoi en cours...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('commandeForm').addEventListener('submit', function() {
+    document.getElementById('btnText').classList.add('hidden');
+    document.getElementById('btnSpinner').classList.remove('hidden');
+    document.getElementById('submitBtn').disabled = true;
+});
+</script>
+{% endblock %}

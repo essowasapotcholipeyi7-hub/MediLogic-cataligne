@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: medilogic-cataligne
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medilogic_db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: IMGBB_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@medilogic.com
+      - key: ADMIN_PASSWORD
+        generateValue: true
+
+databases:
+  - name: medilogic_db
+    databaseName: medilogic
+    user: medilogic_user

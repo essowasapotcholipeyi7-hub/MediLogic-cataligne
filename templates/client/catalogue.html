@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}{{ boutique.nom_boutique }} - Catalogue{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Style pour le modal d'image */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        cursor: pointer;
+    }
+    .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+        max-height: 90%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #fff;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        z-index: 10;
+    }
+    .carousel-prev { left: 10px; }
+    .carousel-next { right: 10px; }
+    .carousel-btn:hover { background: rgba(0,0,0,0.8); }
+    .photo-indicators {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+    }
+    .indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        cursor: pointer;
+    }
+    .indicator.active { background: white; }
+    .gallery-img {
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+    .gallery-img:hover { opacity: 0.9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- En-tête boutique -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div class="flex flex-col md:flex-row items-center text-center md:text-left">
+            {% if boutique.logo_url %}
+                <img src="{{ boutique.logo_url }}" alt="{{ boutique.nom_boutique }}" class="h-20 w-20 object-contain mr-4 mb-4 md:mb-0">
+            {% else %}
+                <div class="h-20 w-20 bg-gray-200 rounded-full flex items-center justify-center mr-4 mb-4 md:mb-0">
+                    <i class="fas fa-store text-3xl text-gray-500"></i>
+                </div>
+            {% endif %}
+            <div class="flex-1">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ boutique.nom_boutique }}</h1>
+                <p class="text-gray-600">Notre catalogue de produits</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="{{ url_for('client.voir_panier') }}" class="relative">
+                    <div class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center">
+                        <i class="fas fa-shopping-cart mr-2"></i>
+                        Voir panier
+                        <span id="panierCount" class="ml-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                            {{ panier|length if panier else 0 }}
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Catalogue -->
+    {% if articles %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for article in articles %}
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+                    <!-- Galerie d'images avec carrousel -->
+                    <div class="relative h-64 bg-gray-100">
+                        {% if article.photos_urls and article.photos_urls|length > 0 %}
+                            <img src="{{ article.photos_urls[0] }}" 
+                                 alt="{{ article.nom }}" 
+                                 class="gallery-img w-full h-64 object-cover"
+                                 data-images='{{ article.photos_urls|tojson }}'
+                                 data-index="0"
+                                 onclick="openModal(this)">
+                            
+                            {% if article.photos_urls|length > 1 %}
+                                <!-- Boutons carrousel -->
+                                <button class="carousel-btn carousel-prev" onclick="event.stopPropagation(); changeImage(this.parentElement, -1)">❮</button>
+                                <button class="carousel-btn carousel-next" onclick="event.stopPropagation(); changeImage(this.parentElement, 1)">❯</button>
+                                
+                                <!-- Indicateurs -->
+                                <div class="photo-indicators">
+                                    {% for photo in article.photos_urls %}
+                                        <div class="indicator {% if loop.index0 == 0 %}active{% endif %}" 
+                                             onclick="event.stopPropagation(); goToImage(this.parentElement.parentElement, {{ loop.index0 }})"></div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                <i class="fas fa-capsules text-5xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Contenu -->
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ article.nom }}</h3>
+                        <p class="text-gray-600 text-sm mb-2">{{ article.description[:100] }}{% if article.description|length > 100 %}...{% endif %}</p>
+                        <p class="text-primary font-bold text-xl mb-3">{{ "%.0f"|format(article.prix) }} FCFA</p>
+                        
+                        <!-- Formulaire ajout panier -->
+                        <form method="POST" action="{{ url_for('client.ajouter_panier') }}" class="flex space-x-2">
+                            <input type="hidden" name="article_id" value="{{ article.id }}">
+                            <input type="hidden" name="boutique_id" value="{{ boutique.id }}">
+                            <input type="number" name="quantite" value="1" min="1" 
+                                   class="w-20 px-2 py-2 border border-gray-300 rounded-lg text-center">
+                            <button type="submit" 
+                                    class="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition">
+                                <i class="fas fa-cart-plus mr-1"></i> Ajouter
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-xl shadow-md p-12 text-center">
+            <i class="fas fa-box-open text-gray-300 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Catalogue vide</h3>
+            <p class="text-gray-500">Aucun article disponible pour le moment</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal pour afficher les photos en grand -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImage">
+    <button class="carousel-btn carousel-prev" style="background: rgba(0,0,0,0.7);" onclick="event.stopPropagation(); modalChangeImage(-1)">❮</button>
+    <button class="carousel-btn carousel-next" style="background: rgba(0,0,0,0.7);" onclick="event.stopPropagation(); modalChangeImage(1)">❯</button>
+    <div id="modalIndicators" class="photo-indicators" style="bottom: 20px;"></div>
+</div>
+
+<script>
+// Stockage global pour les images du modal
+let currentModalImages = [];
+let currentModalIndex = 0;
+
+// Fonction pour ouvrir le modal
+function openModal(imgElement) {
+    const container = imgElement.parentElement;
+    const imagesAttr = imgElement.getAttribute('data-images');
+    
+    if (imagesAttr) {
+        currentModalImages = JSON.parse(imagesAttr);
+        currentModalIndex = parseInt(imgElement.getAttribute('data-index')) || 0;
+        
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = "block";
+        updateModalImage();
+        updateModalIndicators();
+    }
+}
+
+// Mettre à jour l'image du modal
+function updateModalImage() {
+    const modalImg = document.getElementById('modalImage');
+    if (currentModalImages[currentModalIndex]) {
+        modalImg.src = currentModalImages[currentModalIndex];
+    }
+}
+
+// Mettre à jour les indicateurs du modal
+function updateModalIndicators() {
+    const container = document.getElementById('modalIndicators');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    currentModalImages.forEach((_, idx) => {
+        const indicator = document.createElement('div');
+        indicator.className = 'indicator' + (idx === currentModalIndex ? ' active' : '');
+        indicator.onclick = (e) => {
+            e.stopPropagation();
+            currentModalIndex = idx;
+            updateModalImage();
+            updateModalIndicators();
+        };
+        container.appendChild(indicator);
+    });
+}
+
+// Changer d'image dans le modal
+function modalChangeImage(direction) {
+    if (!currentModalImages.length) return;
+    currentModalIndex += direction;
+    if (currentModalIndex < 0) currentModalIndex = currentModalImages.length - 1;
+    if (currentModalIndex >= currentModalImages.length) currentModalIndex = 0;
+    updateModalImage();
+    updateModalIndicators();
+}
+
+// Fonction pour le carrousel dans la carte
+function changeImage(container, direction) {
+    const img = container.querySelector('.gallery-img');
+    if (!img) return;
+    
+    let images = JSON.parse(img.getAttribute('data-images'));
+    let currentIndex = parseInt(img.getAttribute('data-index')) || 0;
+    
+    currentIndex += direction;
+    if (currentIndex < 0) currentIndex = images.length - 1;
+    if (currentIndex >= images.length) currentIndex = 0;
+    
+    img.src = images[currentIndex];
+    img.setAttribute('data-index', currentIndex);
+    
+    // Mettre à jour les indicateurs
+    const indicators = container.querySelectorAll('.indicator');
+    indicators.forEach((ind, idx) => {
+        if (idx === currentIndex) {
+            ind.classList.add('active');
+        } else {
+            ind.classList.remove('active');
+        }
+    });
+}
+
+// Aller directement à une image
+function goToImage(container, index) {
+    const img = container.querySelector('.gallery-img');
+    if (!img) return;
+    
+    let images = JSON.parse(img.getAttribute('data-images'));
+    img.src = images[index];
+    img.setAttribute('data-index', index);
+    
+    const indicators = container.querySelectorAll('.indicator');
+    indicators.forEach((ind, idx) => {
+        if (idx === index) {
+            ind.classList.add('active');
+        } else {
+            ind.classList.remove('active');
+        }
+    });
+}
+
+// Fermer le modal
+function closeModal() {
+    document.getElementById('imageModal').style.display = "none";
+}
+
+// Fermer avec Echap
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
+{% endblock %}

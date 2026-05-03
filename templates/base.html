@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MediLogic - Catalogue pour vous{% endblock %}</title>
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Configuration Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#10B981',
+                        danger: '#EF4444',
+                        warning: '#F59E0B',
+                        dark: '#1F2937',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563EB;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .transition-smooth {
+            transition: all 0.3s ease;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-2">
+                        <i class="fas fa-heartbeat text-primary text-2xl"></i>
+                        <span class="font-bold text-xl text-gray-800">MediLogic</span>
+                        <span class="text-xs text-gray-500">catalogue pour vous</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if session.get('is_admin') %}
+                        <a href="{{ url_for('admin.admin_dashboard') }}" class="text-gray-600 hover:text-primary transition">
+                            <i class="fas fa-tachometer-alt"></i> Admin
+                        </a>
+                        <a href="{{ url_for('admin.admin_logout') }}" class="text-red-500 hover:text-red-700 transition">
+                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                        </a>
+                    {% elif current_user.is_authenticated %}
+                        <a href="{{ url_for('boutique.dashboard') }}" class="text-gray-600 hover:text-primary transition">
+                            <i class="fas fa-store"></i> Tableau de bord
+                        </a>
+                        <a href="{{ url_for('boutique.logout') }}" class="text-red-500 hover:text-red-700 transition">
+                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('boutique.connexion') }}" class="text-gray-600 hover:text-primary transition">
+                            <i class="fas fa-store"></i> Espace boutique
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages Flash -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700 border border-green-200{% elif category == 'danger' %}bg-red-100 text-red-700 border border-red-200{% elif category == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-200{% else %}bg-blue-100 text-blue-700 border border-blue-200{% endif %} flex justify-between items-center">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2026 MediLogic - Catalogue pour vous. Tous droits réservés.</p>
+            <p class="text-gray-400 text-sm mt-2">Solution de gestion de catalogue d'articles en lignes</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Gestion automatique des boutons avec chargement
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.hasAttribute('data-no-loading')) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('btn-loading');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Chargement...';
+                    submitBtn.setAttribute('data-original-text', originalText);
+                }
+            });
+        });
+        
+        // Boutons de suppression avec confirmation
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Inscription boutique{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div class="text-center mb-6">
+            <i class="fas fa-store text-primary text-5xl"></i>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mt-2">Inscription boutique</h1>
+            <p class="text-gray-600 mt-1">Créez votre espace de vente sur MediLogic</p>
+        </div>
+
+        <form method="POST" class="space-y-4" id="inscriptionForm">
+            <!-- Informations boutique -->
+            <div class="border-b border-gray-200 pb-3 mb-3">
+                <h2 class="text-lg font-semibold text-gray-700">
+                    <i class="fas fa-building text-primary mr-2"></i> Informations boutique
+                </h2>
+            </div>
+            
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Nom de la boutique *</label>
+                <input type="text" name="nom_boutique" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
+                       placeholder="Ex: AYELEVI_SHOP, HealthPlus...">
+            </div>
+
+            <!-- Informations propriétaire -->
+            <div class="border-b border-gray-200 pb-3 mb-3 mt-4">
+                <h2 class="text-lg font-semibold text-gray-700">
+                    <i class="fas fa-user-tie text-primary mr-2"></i> Informations propriétaire
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Nom *</label>
+                    <input type="text" name="proprietaire_nom" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Prénom *</label>
+                    <input type="text" name="proprietaire_prenom" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Email *</label>
+                <input type="email" name="email" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
+                       placeholder="votre@email.com">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Numéro WhatsApp *</label>
+                <input type="tel" name="whatsapp" required 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
+                    placeholder="+228 XX XX XX XX">
+                <p class="text-xs text-gray-500 mt-1">Exemple: +228 90 00 00 00</p>
+            </div>
+
+            <!-- Sécurité -->
+            <div class="border-b border-gray-200 pb-3 mb-3 mt-4">
+                <h2 class="text-lg font-semibold text-gray-700">
+                    <i class="fas fa-lock text-primary mr-2"></i> Sécurité
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Mot de passe *</label>
+                    <input type="password" name="mot_de_passe" id="mot_de_passe" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition">
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-info-circle"></i> 8+ caractères, 1 maj, 1 min, 1 chiffre, 1 symbole
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Confirmer mot de passe *</label>
+                    <input type="password" name="confirmer_mdp" id="confirmer_mdp" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Question secrète *</label>
+                <select name="question_secrete" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition">
+                    <option value="">Choisissez une question</option>
+                    <option>Quel est le nom de votre animal de compagnie ?</option>
+                    <option>Quelle est votre ville de naissance ?</option>
+                    <option>Quel est le nom de votre mère ?</option>
+                    <option>Quel était votre premier jouet ?</option>
+                    <option>Quelle est votre couleur préférée ?</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Réponse à la question secrète *</label>
+                <input type="text" name="reponse_secrete" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition">
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                <p class="text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Après inscription, votre boutique devra être activée par l'administrateur. 
+                    Vous recevrez un email de confirmation.
+                </p>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                    class="w-full bg-primary text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold">
+                <i class="fas fa-check-circle mr-2"></i> S'inscrire
+            </button>
+
+            <p class="text-center text-gray-600 mt-4">
+                Déjà inscrit ? <a href="{{ url_for('boutique.connexion') }}" class="text-primary hover:underline">Connectez-vous</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('inscriptionForm').addEventListener('submit', function(e) {
+    var mdp = document.getElementById('mot_de_passe').value;
+    var confirmer = document.getElementById('confirmer_mdp').value;
+    
+    if (mdp !== confirmer) {
+        e.preventDefault();
+        alert('Les mots de passe ne correspondent pas !');
+        return false;
+    }
+    
+    // Vérification de la force du mot de passe
+    var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!regex.test(mdp)) {
+        e.preventDefault();
+        alert('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un symbole');
+        return false;
+    }
+});
+</script>
+{% endblock %}
