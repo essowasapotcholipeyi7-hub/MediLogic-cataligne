@@ -6,13 +6,12 @@ services:
     startCommand: gunicorn app:app
     envVars:
       - key: DATABASE_URL
-        sync: false
+        value: postgresql://postgres:essowasa1234@db.rdiyvvycbpumfhgmyfxo.supabase.co:5432/postgres
       - key: IMGBB_API_KEY
-        sync: false
+        value: 72c5c70cf4267dd117cea14606aad030
       - key: SECRET_KEY
-        sync: false
+        value: medilogic-secret-key-2025
       - key: ADMIN_EMAIL
         value: essowasainfo60@gmail.com
       - key: ADMIN_PASSWORD
         value: essowasa1234A
-    pythonVersion: 3.12
