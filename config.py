@@ -6,14 +6,17 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'medilogic-super-secret-key-2025'
     
-    # Base de données : SQLite en local, PostgreSQL sur Render
+    # Base de données : utiliser SQLite (avec disque persistant sur Render)
     DATABASE_URL = os.environ.get('DATABASE_URL')
     
-    if DATABASE_URL:
-        # En production (Render) - PostgreSQL
+    if DATABASE_URL and DATABASE_URL.startswith('sqlite://'):
+        # SQLite avec chemin personnalisé (Render avec disque)
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    elif DATABASE_URL and 'postgresql://' in DATABASE_URL:
+        # PostgreSQL (si un jour tu veux l'utiliser)
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL.replace('postgresql://', 'postgresql+pg8000://')
     else:
-        # En local - SQLite (aucune installation requise)
+        # Local - SQLite
         SQLALCHEMY_DATABASE_URI = 'sqlite:///medilogic.db'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
