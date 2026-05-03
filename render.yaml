@@ -6,19 +6,13 @@ services:
     startCommand: gunicorn app:app
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: medilogic_db
-          property: connectionString
-      - key: SECRET_KEY
-        generateValue: true
+        sync: false
       - key: IMGBB_API_KEY
         sync: false
+      - key: SECRET_KEY
+        sync: false
       - key: ADMIN_EMAIL
-        value: admin@medilogic.com
+        value: essowasainfo60@gmail.com
       - key: ADMIN_PASSWORD
-        generateValue: true
-
-databases:
-  - name: medilogic_db
-    databaseName: medilogic
-    user: medilogic_user
+        value: essowasa1234A
+    pythonVersion: 3.12
