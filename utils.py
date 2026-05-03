@@ -1,8 +1,6 @@
-import os
 import requests
-from io import BytesIO
-from flask import current_app
 from werkzeug.utils import secure_filename
+from flask import current_app
 
 def upload_to_imgbb(file, custom_name=None):
     """Upload une image vers ImgBB et retourne l'URL"""
